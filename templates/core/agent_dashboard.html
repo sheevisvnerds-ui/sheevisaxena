@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Agent Tasks - ScrapeWale{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold m-0 text-success">My Pickups</h4>
+        <span class="badge bg-primary rounded-pill">{{ pickups.count }} Assigned</span>
+    </div>
+
+    <div class="row g-3">
+        {% for pickup in pickups %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card glass-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold mb-0">#{{ pickup.id }}</h5>
+                        <span class="badge bg-warning text-dark">{{ pickup.get_status_display }}</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="mb-1 text-muted small"><i class="fas fa-user me-2"></i>{{
+                            pickup.customer.name|default:pickup.customer.username }}</p>
+                        <p class="mb-1 text-muted small"><i class="fas fa-phone me-2"></i>{{
+                            pickup.customer.phone|default:"N/A" }}</p>
+                        <p class="mb-1 fw-bold text-dark"><i class="fas fa-map-marker-alt me-2 text-danger"></i>{{
+                            pickup.address|truncatechars:40 }}</p>
+                        <p class="mb-0 text-muted small"><i class="fas fa-clock me-2"></i>{{
+                            pickup.scheduled_date|date:"h:i A, d M" }}</p>
+                    </div>
+
+                    <div class="d-grid gap-2 d-flex">
+                        <!-- Link to Directions (Google Maps Intent) -->
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ pickup.address }}" target="_blank"
+                            class="btn btn-outline-primary btn-sm flex-fill">
+                            <i class="fas fa-directions me-1"></i> Map
+                        </a>
+                        <!-- Link to Job Details/Complete -->
+                        <a href="{% url 'agent_job_detail' pickup.id %}" class="btn btn-success btn-sm flex-fill">
+                            <i class="fas fa-check-circle me-1"></i> Complete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-clipboard-check fa-4x text-muted mb-3"></i>
+            <p class="text-muted">No pending pickups assigned to you.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Job #{{ pickup.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <a href="{% url 'agent_dashboard' %}" class="text-decoration-none text-muted mb-3 d-block"><i
+            class="fas fa-arrow-left me-1"></i> Back to List</a>
+
+    <div class="card glass-card border-0 mb-4">
+        <div class="card-body">
+            <h4 class="fw-bold">Pickup #{{ pickup.id }}</h4>
+            <hr>
+            <div class="row">
+                <div class="col-6 mb-2">
+                    <small class="text-muted">Customer</small>
+                    <p class="fw-bold mb-0">{{ pickup.customer.name|default:pickup.customer.username }}</p>
+                </div>
+                <div class="col-6 mb-2">
+                    <small class="text-muted">Phone</small>
+                    <p class="fw-bold mb-0"><a href="tel:{{ pickup.customer.phone }}" class="text-decoration-none">{{
+                            pickup.customer.phone }}</a></p>
+                </div>
+                <div class="col-12">
+                    <small class="text-muted">Address</small>
+                    <p class="fw-bold mb-0">{{ pickup.address }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card glass-card border-0">
+        <div class="card-body">
+            <h5 class="fw-bold text-success mb-3">Complete Collection</h5>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Actual Weight collected (Kg)</label>
+                    <input type="number" step="0.1" name="actual_weight" class="form-control form-control-lg" required
+                        placeholder="0.0">
+                    <div class="form-text">Final price will be calculated based on rates.</div>
+                </div>
+
+                <div class="alert alert-info small">
+                    <i class="fas fa-info-circle me-1"></i> Ensure payment of calculated amount is made to customer
+                    before submitting.
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success btn-lg">Finalize & Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
