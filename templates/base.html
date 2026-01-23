@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=2">
 </head>
 
 <body>
@@ -45,6 +45,10 @@
                             href="{% url 'book_pickup' %}">Book Pickup</a></li>
                     {% elif user.role == 'AGENT' %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'agent_dashboard' %}">My Tasks</a></li>
+                    {% endif %}
+                    {% if user.is_superuser %}
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/admin/" target="_blank">Admin
+                            Panel</a></li>
                     {% endif %}
                     <li class="nav-item ms-2">
                         <form action="{% url 'logout' %}" method="post" class="d-inline">

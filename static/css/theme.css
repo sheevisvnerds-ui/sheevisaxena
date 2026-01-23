@@ -85,6 +85,26 @@ body.dark-mode .text-warning {
     /* Brighter yellow for dark mode */
 }
 
+/* --- Aggressive Bootstrap Overrides for Dark Mode --- */
+body.dark-mode .text-dark {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .text-muted {
+    color: #b0b0b0 !important;
+}
+
+body.dark-mode .bg-light,
+body.dark-mode .bg-white {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .card {
+    background-color: var(--glass-bg);
+    color: var(--text-main);
+}
+
 /* --- Navbar --- */
 .navbar-custom {
     background: var(--bg-surface);
