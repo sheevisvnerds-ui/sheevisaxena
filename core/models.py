@@ -48,3 +48,12 @@ class PickupRequest(models.Model):
 
     def __str__(self):
         return f"Pickup #{self.id} - {self.customer.username} ({self.status})"
+
+class PickupItem(models.Model):
+    pickup = models.ForeignKey(PickupRequest, on_delete=models.CASCADE, related_name='items')
+    category = models.ForeignKey(ScrapCategory, on_delete=models.PROTECT)
+    weight = models.FloatField(help_text="Weight in Kg")
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.category.name} - {self.weight}kg"
