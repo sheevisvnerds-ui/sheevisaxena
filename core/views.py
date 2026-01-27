@@ -10,6 +10,11 @@ from .models import PickupRequest, ScrapCategory
 class HomeView(TemplateView):
     template_name = 'core/home.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scrap_categories'] = ScrapCategory.objects.all()[:4] # Show top 4
+        return context
+
 class AboutView(TemplateView):
     template_name = 'core/about.html'
 

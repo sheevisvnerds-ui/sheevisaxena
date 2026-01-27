@@ -68,43 +68,29 @@
         </div>
 
         <div class="row g-4">
-            <!-- Example Static Data (Will be dynamic later) -->
+            {% for category in scrap_categories %}
             <div class="col-6 col-md-3">
-                <div class="card border-0 shadow-sm rate-card-item text-center py-3">
+                <div class="card glass-card border-0 h-100 text-center py-4 rate-card-item">
                     <div class="card-body">
-                        <i class="fas fa-newspaper fa-3x text-secondary mb-3"></i>
-                        <h5 class="card-title">Newspaper</h5>
-                        <p class="h4 text-success fw-bold">₹14/kg</p>
+                        <div class="mb-3">
+                            {% if category.image %}
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}"
+                                class="img-fluid rounded-3 mb-2" style="height: 120px; object-fit: cover; width: 100%;">
+                            {% else %}
+                            <i class="fas fa-recycle fa-3x text-success"></i>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title fw-bold">{{ category.name }}</h5>
+                        <h3 class="text-success mt-3">₹{{ category.rate_per_kg }}<small
+                                class="text-muted fs-6">/kg</small></h3>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="card border-0 shadow-sm rate-card-item text-center py-3">
-                    <div class="card-body">
-                        <i class="fas fa-box fa-3x text-warning mb-3"></i>
-                        <h5 class="card-title">Cardboard</h5>
-                        <p class="h4 text-success fw-bold">₹5/kg</p>
-                    </div>
-                </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">Loading rates...</p>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="card border-0 shadow-sm rate-card-item text-center py-3">
-                    <div class="card-body">
-                        <i class="fas fa-bolt fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Iron</h5>
-                        <p class="h4 text-success fw-bold">₹26/kg</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card border-0 shadow-sm rate-card-item text-center py-3">
-                    <div class="card-body">
-                        <i class="fas fa-wine-bottle fa-3x text-success mb-3"></i>
-                        <h5 class="card-title">Plastic</h5>
-                        <p class="h4 text-success fw-bold">₹12/kg</p>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
         <div class="text-center mt-5">

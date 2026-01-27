@@ -24,11 +24,16 @@
                         </div>
 
                         <!-- Live Calculation Display -->
-                        <div class="alert alert-info d-none" id="calculation-result">
-                            <div class="d-flex justify-content-between">
-                                <span>Rate: <strong id="display-rate">₹0</strong>/kg</span>
-                                <span>Est. Amount: <strong class="text-success fs-5"
-                                        id="display-total">₹0</strong></span>
+                        <!-- Live Calculation Display -->
+                        <div class="price-estimation-card d-none" id="calculation-result">
+                            <div class="text-center">
+                                <h5>Current Rate</h5>
+                                <div class="price-value" id="display-rate">₹0</div>
+                            </div>
+                            <div class="vr mx-3" style="height: 40px; opacity: 0.2;"></div>
+                            <div class="text-center">
+                                <h5>Est. Total</h5>
+                                <div class="price-value text-success" id="display-total">₹0</div>
                             </div>
                         </div>
 

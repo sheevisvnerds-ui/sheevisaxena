@@ -52,8 +52,6 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "View Site", "url": "home"},
-        {"name": "About", "url": "about"},
-        {"name": "Services", "url": "services"},
     ],
     "show_sidebar": True,
     "navigation_expanded": True,

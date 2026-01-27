@@ -431,3 +431,45 @@ body.dark-mode .glass-card textarea:focus {
 body.dark-mode .glass-card label {
     color: #aaa;
 }
+
+/* --- Price Estimation Box --- */
+.price-estimation-card {
+    background: rgba(46, 125, 50, 0.08);
+    border: 2px dashed var(--primary-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 1.5rem 0;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.price-estimation-card h5 {
+    margin: 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.price-estimation-card .price-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+body.dark-mode .price-estimation-card {
+    background: rgba(102, 187, 106, 0.1);
+    border-color: #66bb6a;
+}
+
+body.dark-mode .price-estimation-card .price-value {
+    color: #66bb6a;
+}
+
+body.dark-mode .price-estimation-card h5 {
+    color: #ccc;
+}
