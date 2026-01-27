@@ -28,7 +28,6 @@
                         <tr>
                             <th class="ps-4">ID</th>
                             <th>Date</th>
-                            <th>Category</th>
                             <th>Status</th>
                             <th>Est. Weight</th>
                             <th>Actual Weight</th>
@@ -41,13 +40,6 @@
                         <tr>
                             <td class="ps-4 fw-bold">#{{ pickup.id }}</td>
                             <td>{{ pickup.scheduled_date|date:"d M, Y h:i A" }}</td>
-                            <td>
-                                {% if pickup.scrap_category %}
-                                <span class="badge bg-light text-dark border">{{ pickup.scrap_category.name }}</span>
-                                {% else %}
-                                <span class="text-muted">Unknown</span>
-                                {% endif %}
-                            </td>
                             <td>
                                 {% if pickup.status == 'PENDING' %}
                                 <span class="badge bg-warning text-dark">Pending</span>
@@ -71,12 +63,7 @@
                                 {% if pickup.total_amount %}
                                 ₹{{ pickup.total_amount }}
                                 {% else %}
-                                {% if pickup.scrap_category %}
-                            <td class="fw-bold text-success">
-                                {% if pickup.total_amount %}
-                                ₹{{ pickup.total_amount }}
-                                {% else %}
-                                <span class="text-muted small">Est:</span> ₹{{ pickup.estimated_amount|floatformat:2 }}
+                                <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
                             <td>

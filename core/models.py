@@ -49,9 +49,3 @@ class PickupRequest(models.Model):
 
     def __str__(self):
         return f"Pickup #{self.id} - {self.customer.username} ({self.status})"
-
-    @property
-    def estimated_amount(self):
-        if self.scrap_category:
-            return self.estimated_weight * float(self.scrap_category.rate_per_kg)
-        return 0.0
