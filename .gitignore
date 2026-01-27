@@ -1,0 +1,21 @@
+# Python stuff
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+venv_new/
+.env
+env/
+.venv/
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+
+# VS Code
+.vscode/
+
+# Media
+media/
