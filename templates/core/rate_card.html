@@ -14,9 +14,13 @@
         <div class="col-6 col-md-3">
             <div class="card glass-card border-0 h-100 text-center py-4 rate-card-item">
                 <div class="card-body">
-                    <!-- Icon Placeholder - in real app would be category.image -->
                     <div class="mb-3">
+                        {% if category.image %}
+                        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid rounded-3 mb-2"
+                            style="height: 160px; object-fit: cover; width: 100%;">
+                        {% else %}
                         <i class="fas fa-recycle fa-3x text-success"></i>
+                        {% endif %}
                     </div>
                     <h5 class="card-title fw-bold">{{ category.name }}</h5>
                     <h3 class="text-success mt-3">₹{{ category.rate_per_kg }}<small class="text-muted fs-6">/kg</small>

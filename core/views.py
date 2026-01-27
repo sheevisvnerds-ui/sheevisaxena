@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, CreateView, ListView, DetailView, View
+from django.views.generic import TemplateView, CreateView, ListView, DetailView, View, DeleteView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -27,6 +27,11 @@ class BookPickupView(LoginRequiredMixin, CreateView):
     template_name = 'core/pickup_form.html'
     success_url = reverse_lazy('dashboard') # We need to create this
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['scrap_categories'] = ScrapCategory.objects.all()
+        return context
+
     def form_valid(self, form):
         form.instance.customer = self.request.user
         messages.success(self.request, "Pickup scheduled successfully!")
@@ -39,6 +44,18 @@ class CustomerDashboardView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return PickupRequest.objects.filter(customer=self.request.user).order_by('-created_at')
+
+class PickupDeleteView(LoginRequiredMixin, DeleteView):
+    model = PickupRequest
+    success_url = reverse_lazy('dashboard')
+    
+    def get_queryset(self):
+        # Ensure user can only delete their own pickups
+        return PickupRequest.objects.filter(customer=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, "Pickup request deleted successfully.")
+        return super().form_valid(form)
 
 class AgentDashboardView(LoginRequiredMixin, ListView):
     model = PickupRequest
@@ -58,10 +75,12 @@ class AgentJobDetailView(LoginRequiredMixin, View):
         pickup = get_object_or_404(PickupRequest, pk=pk, agent=request.user)
         actual_weight = float(request.POST.get('actual_weight', 0))
         
-        # Simplified Pricing Logic: Avg rate 15/kg for MVP as we don't have category split in form yet
-        # future: logic to split weight by category
-        AVG_RATE = 15.0 
-        total_amount = actual_weight * AVG_RATE
+        if pickup.scrap_category:
+            rate = float(pickup.scrap_category.rate_per_kg)
+        else:
+            rate = 0.0 # Or default rate
+
+        total_amount = actual_weight * rate
 
         pickup.actual_weight = actual_weight
         pickup.total_amount = total_amount

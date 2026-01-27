@@ -4,7 +4,7 @@ from django.contrib.auth.views import LogoutView
 from .views import (
     HomeView, BookPickupView, CustomerSignupView, CustomLoginView, 
     CustomerDashboardView, RateCardView, AgentDashboardView, AgentJobDetailView,
-    AboutView, ServicesView
+    AboutView, ServicesView, PickupDeleteView
 )
 
 urlpatterns = [
@@ -21,4 +21,5 @@ urlpatterns = [
     # Agent Routes
     path('agent/dashboard/', AgentDashboardView.as_view(), name='agent_dashboard'),
     path('agent/job/<int:pk>/', AgentJobDetailView.as_view(), name='agent_job_detail'),
+    path('dashboard/delete/<int:pk>/', PickupDeleteView.as_view(), name='pickup_delete'),
 ]

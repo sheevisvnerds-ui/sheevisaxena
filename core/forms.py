@@ -5,8 +5,9 @@ from .models import PickupRequest, User
 class PickupRequestForm(forms.ModelForm):
     class Meta:
         model = PickupRequest
-        fields = ['address', 'estimated_weight', 'scheduled_date']
+        fields = ['scrap_category', 'address', 'estimated_weight', 'scheduled_date']
         widgets = {
+            'scrap_category': forms.Select(attrs={'class': 'form-select'}),
             'scheduled_date': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter full address including landmark'}),
             'estimated_weight': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Approx weight in Kg'}),

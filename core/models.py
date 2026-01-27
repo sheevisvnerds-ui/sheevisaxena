@@ -33,6 +33,7 @@ class PickupRequest(models.Model):
 
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pickup_requests', limit_choices_to={'role': User.Role.CUSTOMER})
     agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_pickups', limit_choices_to={'role': User.Role.AGENT})
+    scrap_category = models.ForeignKey(ScrapCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='pickup_requests')
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     scheduled_date = models.DateTimeField()
     address = models.TextField()
@@ -48,3 +49,9 @@ class PickupRequest(models.Model):
 
     def __str__(self):
         return f"Pickup #{self.id} - {self.customer.username} ({self.status})"
+
+    @property
+    def estimated_amount(self):
+        if self.scrap_category:
+            return self.estimated_weight * float(self.scrap_category.rate_per_kg)
+        return 0.0
