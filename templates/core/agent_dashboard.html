@@ -1,0 +1,411 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agent Dashboard - ScrapeWale{% endblock %}
+
+{% block content %}
+<div class="agent-dashboard py-5">
+    <div class="container">
+
+        <!-- Header & Stats Section -->
+        <div class="row align-items-center mb-5">
+            <div class="col-md-5">
+                <h2 class="fw-bold text-dark mb-1">Welcome back, {{ request.user.username }}!</h2>
+                <p class="text-muted">Here's what's happening today.</p>
+            </div>
+
+            <div class="col-md-7">
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="stat-card bg-white p-3 rounded-4 shadow-sm text-center">
+                            <h3 class="fw-bold text-primary mb-0">{{ my_tasks.count }}</h3>
+                            <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem;">My Tasks</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-card bg-white p-3 rounded-4 shadow-sm text-center">
+                            <h3 class="fw-bold text-warning mb-0">{{ pending_requests.count }}</h3>
+                            <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem;">Pending</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-card bg-white p-3 rounded-4 shadow-sm text-center">
+                            <h3 class="fw-bold text-success mb-0">{{ completed_tasks.count }}</h3>
+                            <small class="text-muted fw-bold text-uppercase"
+                                style="font-size: 0.7rem;">Completed</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Centered) -->
+        <div class="text-center mb-4">
+            <div class="glass-panel p-2 d-inline-block rounded-pill">
+                <ul class="nav nav-pills gap-2" id="agentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill px-4 fw-bold" id="my-tasks-tab"
+                            data-bs-toggle="pill" data-bs-target="#my-tasks" type="button" role="tab">
+                            <i class="fas fa-truck-loading me-2"></i>My Tasks
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4 fw-bold" id="pending-tab" data-bs-toggle="pill"
+                            data-bs-target="#pending" type="button" role="tab">
+                            <i class="fas fa-inbox me-2"></i>Pending
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4 fw-bold" id="completed-tab" data-bs-toggle="pill"
+                            data-bs-target="#completed" type="button" role="tab">
+                            <i class="fas fa-history me-2"></i>Completed
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="agentTabsContent">
+
+            <!-- 1. Active Collections Tab -->
+            <div class="tab-pane fade show active" id="my-tasks" role="tabpanel">
+                <div class="row g-4">
+                    {% for pickup in my_tasks %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="task-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                            <div
+                                class="card-header bg-white border-0 pt-3 pb-0 px-4 d-flex justify-content-between align-items-center">
+                                <span class="badge bg-green-soft text-success rounded-pill px-3 py-2">Assigned</span>
+                                <small class="text-muted fw-bold">#{{ pickup.id }}</small>
+                            </div>
+                            <div class="card-body px-4 pt-2">
+                                <h5 class="fw-bold text-dark mt-2 mb-1">{{ pickup.customer.name|default:pickup.customer.username }}</h5>
+                                <a href="tel:{{ pickup.customer.phone }}" class="text-decoration-none text-muted small">
+                                    <i class="fas fa-phone-alt me-1 text-success"></i> {{ pickup.customer.phone|default:"N/A" }}
+                                </a>
+
+                                <div class="bg-light p-3 rounded-3 mt-3 mb-3">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-map-marker-alt text-success mt-1 me-2"></i>
+                                        <p class="mb-0 small text-dark fw-medium lh-sm">{{ pickup.address }}</p>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                                        <div class="text-center">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">DATE</small>
+                                            <span class="fw-bold small">{{ pickup.scheduled_date|date:"d M" }}</span>
+                                        </div>
+                                        <div class="text-center">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">TIME</small>
+                                            <span class="fw-bold small">{{ pickup.scheduled_date|date:"h:i A" }}</span>
+                                        </div>
+                                        <div class="text-center">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">EST. WT</small>
+                                            <span class="fw-bold small">{{ pickup.estimated_weight }} kg</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <a href="https://www.google.com/maps/search/?api=1&query={{ pickup.address }}"
+                                        target="_blank" class="btn btn-outline-dark rounded-pill btn-sm fw-bold">
+                                        <i class="fas fa-location-arrow me-2"></i>Navigate
+                                    </a>
+                                    <a href="{% url 'agent_job_detail' pickup.id %}"
+                                        class="btn btn-sc-primary rounded-pill btn-sm fw-bold">
+                                        <i class="fas fa-check me-2"></i>Start Collection
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <div class="empty-state">
+                            <div class="mb-3 p-4 rounded-circle bg-light d-inline-block">
+                                <i class="fas fa-clipboard-check fa-3x text-success opacity-50"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark">All Collections Complete</h5>
+                            <p class="text-muted">You have no active collections. Check "New Opportunities".</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 2. New Opportunities Tab -->
+            <div class="tab-pane fade" id="pending" role="tabpanel">
+                <div class="row g-4">
+                    {% for pickup in pending_requests %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="task-card card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4 position-relative">
+                                <span
+                                    class="position-absolute top-0 end-0 m-3 badge bg-yellow-soft text-warning fw-bold rounded-pill px-3">New</span>
+
+                                <h6 class="text-uppercase text-muted fw-bold small mb-2">{{
+                                    pickup.scrap_category.name|default:"Mixed Scrap" }}</h6>
+                                <h4 class="fw-bold">{{ pickup.estimated_weight }} <small class="fs-6 text-muted">kg
+                                        (Est.)</small></h4>
+
+                                <div class="my-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-map-pin text-success me-2"
+                                            style="width: 20px; text-align: center;"></i>
+                                        <span class="text-truncate">{{ pickup.address }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="far fa-clock text-success me-2"
+                                            style="width: 20px; text-align: center;"></i>
+                                        <span>{{ pickup.scheduled_date|date:"d M, h:i A" }}</span>
+                                    </div>
+                                </div>
+
+                                <form action="{% url 'agent_accept_pickup' pickup.id %}" method="post" class="mt-4">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="btn btn-sc-secondary w-100 rounded-pill fw-bold action-btn text-dark">
+                                        Accept Request <i class="fas fa-arrow-right ms-2 opacity-50"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <div class="empty-state">
+                            <div class="mb-3 p-4 rounded-circle bg-light d-inline-block">
+                                <i class="fas fa-inbox fa-3x text-muted"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark">No New Requests</h5>
+                            <p class="text-muted">There are no pending requests in your area right now.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 3. History Tab -->
+            <div class="tab-pane fade" id="completed" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 text-uppercase small fw-bold text-muted">ID</th>
+                                    <th class="py-3 text-uppercase small fw-bold text-muted">Customer</th>
+                                    <th class="py-3 text-uppercase small fw-bold text-muted">Completed On</th>
+                                    <th class="py-3 text-uppercase small fw-bold text-muted">Weight</th>
+                                    <th class="py-3 text-uppercase small fw-bold text-muted">Amount</th>
+                                    <th class="pe-4 py-3 text-uppercase small fw-bold text-muted text-end">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pickup in completed_tasks %}
+                                <tr>
+                                    <td class="ps-4 fw-bold text-muted">#{{ pickup.id }}</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ pickup.customer.name|default:pickup.customer.username }}</div>
+                                        <small class="text-muted">{{ pickup.address|truncatechars:25 }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ pickup.completed_at|date:"d M Y" }}</div>
+                                        <small class="text-muted">{{ pickup.completed_at|date:"h:i A" }}</small>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark border">{{ pickup.actual_weight }}
+                                            kg</span></td>
+                                    <td class="fw-bold text-success">₹{{ pickup.total_amount }}</td>
+                                    <td class="pe-4 text-end"><span
+                                            class="badge bg-green-soft text-success rounded-pill px-3">Collected</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <span class="text-muted">No completed history available.</span>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Professional Tweaks */
+        .agent-dashboard {
+            background-color: #f8f9fa;
+            min-height: 90vh;
+        }
+
+        /* Brand Colors override */
+        .bg-green-soft {
+            background-color: rgba(46, 125, 50, 0.1) !important;
+            color: #2e7d32 !important;
+        }
+
+        .bg-yellow-soft {
+            background-color: rgba(251, 192, 45, 0.15) !important;
+            color: #f57f17 !important;
+        }
+
+        .text-success {
+            color: #2e7d32 !important;
+        }
+
+        .text-warning {
+            color: #f57f17 !important;
+        }
+
+        .btn-sc-primary {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-sc-primary:hover {
+            background-color: #1b5e20;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-sc-secondary {
+            background: linear-gradient(135deg, #fbc02d 0%, #f9a825 100%);
+            color: #000;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-sc-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(251, 192, 45, 0.4);
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            transition: transform 0.2s;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Navigation Pills */
+        .nav-pills .nav-link {
+            color: #6c757d;
+            background: transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-pills .nav-link:hover {
+            color: #2e7d32;
+            background-color: rgba(46, 125, 50, 0.05);
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #2e7d32;
+            /* Brand Green */
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+            transform: scale(1.02);
+        }
+
+        /* Task Cards */
+        .task-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        .action-btn {
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Glass Panel for Tabs */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Animations */
+        .tab-pane {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dark Mode Overrides (if global theme supports it) */
+        body.dark-mode .agent-dashboard {
+            background-color: #121212;
+        }
+
+        body.dark-mode .text-dark {
+            color: #f8f9fa !important;
+        }
+
+        body.dark-mode .bg-white {
+            background-color: #1e1e1e !important;
+        }
+
+        body.dark-mode .stat-card,
+        body.dark-mode .task-card {
+            background-color: #1e1e1e;
+            border-color: #333;
+        }
+
+        body.dark-mode .glass-panel {
+            background: rgba(30, 30, 30, 0.7);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .nav-pills .nav-link {
+            color: #aaa;
+        }
+
+        body.dark-mode .nav-pills .nav-link.active {
+            background-color: #fff;
+            color: #000;
+        }
+
+        body.dark-mode .table {
+            color: #ddd;
+        }
+
+        body.dark-mode .table thead {
+            background-color: #2c2c2c;
+        }
+
+        body.dark-mode .card-header {
+            background-color: #1e1e1e;
+        }
+
+        body.dark-mode .bg-light {
+            background-color: #2c2c2c !important;
+        }
+    </style>
+    {% endblock %}

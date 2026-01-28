@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Partner With Us - ScrapeWale{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-success mb-4">Become a Pickup Agent</h1>
+            <p class="lead mb-4">Join our network of logistics partners. Collect scrap, earn money, and help the
+                environment.</p>
+            <ul class="list-unstyled mb-4">
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Flexible working hours</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Instant payments</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Growing customer base</li>
+            </ul>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{% url 'agent_signup' %}" class="btn btn-primary-custom btn-lg px-4 me-md-2">Join Now</a>
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg px-4">Learn More</a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://images.unsplash.com/photo-1580674684081-7617fbf3d745?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+                alt="Partner with us" class="img-fluid rounded-3 shadow-lg">
+        </div>
+    </div>
+
+    <!-- How it works section -->
+    <div class="row mt-5 pt-5 text-center">
+        <h2 class="fw-bold mb-5">How It Works</h2>
+        <div class="col-md-4 mb-4">
+            <div class="p-4 bg-white rounded shadow-sm h-100">
+                <i class="fas fa-mobile-alt fa-3x text-success mb-3"></i>
+                <h4>1. Get Notifications</h4>
+                <p>Receive pickup requests in your area directly on your dashboard.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4 bg-white rounded shadow-sm h-100">
+                <i class="fas fa-truck fa-3x text-success mb-3"></i>
+                <h4>2. Collect Scrap</h4>
+                <p>Visit the customer, weigh the scrap, and collect it.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4 bg-white rounded shadow-sm h-100">
+                <i class="fas fa-wallet fa-3x text-success mb-3"></i>
+                <h4>3. Earn Money</h4>
+                <p>Get paid for your services and the value of scrap.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
