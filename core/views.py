@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .forms import PickupRequestForm, CustomerSignupForm
-from .models import PickupRequest, ScrapCategory
+from .models import PickupRequest, ScrapCategory, PickupItem
 
 class HomeView(TemplateView):
     template_name = 'core/home.html'
@@ -68,31 +68,68 @@ class AgentDashboardView(LoginRequiredMixin, ListView):
     context_object_name = 'pickups'
 
     def get_queryset(self):
-        # In a real app, filter by role=AGENT check too
         return PickupRequest.objects.filter(agent=self.request.user, status=PickupRequest.Status.ASSIGNED).order_by('scheduled_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        from django.utils import timezone
+        today = timezone.now().date()
+        
+        assigned = PickupRequest.objects.filter(agent=user, status=PickupRequest.Status.ASSIGNED).order_by('scheduled_date')
+        
+        context['assigned_pickups'] = assigned
+        context['today_pickups'] = [p for p in assigned if p.scheduled_date.date() == today]
+        context['future_pickups'] = [p for p in assigned if p.scheduled_date.date() > today]
+        context['completed_pickups'] = PickupRequest.objects.filter(agent=user, status=PickupRequest.Status.COLLECTED).order_by('-updated_at')
+        context['available_pickups'] = PickupRequest.objects.filter(status=PickupRequest.Status.PENDING, agent__isnull=True).order_by('scheduled_date')
+        return context
 
 class AgentJobDetailView(LoginRequiredMixin, View):
     def get(self, request, pk):
         pickup = get_object_or_404(PickupRequest, pk=pk, agent=request.user)
-        return render(request, 'core/agent_job_detail.html', {'pickup': pickup})
+        categories = ScrapCategory.objects.all()
+        return render(request, 'core/agent_job_detail.html', {
+            'pickup': pickup,
+            'categories': categories
+        })
 
     def post(self, request, pk):
         pickup = get_object_or_404(PickupRequest, pk=pk, agent=request.user)
-        actual_weight = float(request.POST.get('actual_weight', 0))
         
-        if pickup.scrap_category:
-            rate = float(pickup.scrap_category.rate_per_kg)
-        else:
-            rate = 0.0 # Or default rate
+        category_ids = request.POST.getlist('category[]')
+        weights = request.POST.getlist('weight[]')
+        
+        total_weight = 0.0
+        total_amount = 0.0
+        
+        # Clear existing items if re-submitting (optional safety)
+        pickup.items.all().delete()
+        
+        for cat_id, weight_str in zip(category_ids, weights):
+            if not weight_str or float(weight_str) <= 0:
+                continue
+                
+            weight = float(weight_str)
+            category = ScrapCategory.objects.get(id=cat_id)
+            amount = weight * float(category.rate_per_kg)
+            
+            PickupItem.objects.create(
+                pickup=pickup,
+                category=category,
+                weight=weight,
+                amount=amount
+            )
+            
+            total_weight += weight
+            total_amount += amount
 
-        total_amount = actual_weight * rate
-
-        pickup.actual_weight = actual_weight
+        pickup.actual_weight = total_weight
         pickup.total_amount = total_amount
         pickup.status = PickupRequest.Status.COLLECTED
         pickup.save()
         
-        messages.success(request, f"Job Completed! Amount to Pay: ₹{total_amount}")
+        messages.success(request, f"Job Completed! Amount to Pay: ₹{total_amount:.2f}")
         return redirect('agent_dashboard')
 
 class CustomerSignupView(CreateView):
