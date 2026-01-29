@@ -69,87 +69,30 @@
                             <td>
                                 <div class="d-flex gap-2">
                                     {% if pickup.status == 'ASSIGNED' or pickup.status == 'PENDING' %}
-                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#trackModal{{ pickup.id }}" title="Track Order">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#trackModal{{ pickup.id }}" title="Track Order">
                                         <i class="fas fa-map-marker-alt"></i>
                                     </button>
                                     {% endif %}
-                                    
+
                                     {% if pickup.status == 'PENDING' %}
                                     <form method="post" action="{% url 'pickup_delete' pickup.id %}" class="d-inline"
                                         onsubmit="return confirm('Are you sure you want to delete this pickup request?');">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Request">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            title="Delete Request">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
                                     {% else %}
-                                    <button class="btn btn-sm btn-outline-secondary" disabled title="Cannot delete items in progress">
+                                    <button class="btn btn-sm btn-outline-secondary" disabled
+                                        title="Cannot delete items in progress">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                     {% endif %}
                                 </div>
 
-                                <!-- Tracking Modal -->
-                                <div class="modal fade" id="trackModal{{ pickup.id }}" tabindex="-1" aria-hidden="true">
-                                    <!-- Added modal-dialog-scrollable for proper scrolling -->
-                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                        <div class="modal-content border-0 shadow-lg rounded-4">
-                                            <div class="modal-header border-0 pb-0">
-                                                <h5 class="modal-title fw-bold text-dark">Order Tracking</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <!-- Standard Bootstrap scrolling body -->
-                                            <div class="modal-body p-4">
-                                                <div class="tracking-timeline">
-                                                    <!-- Step 1: Order Placed (Always First) -->
-                                                    <div class="timeline-item active">
-                                                        <div class="timeline-marker"></div>
-                                                        <div class="timeline-content">
-                                                            <h6 class="fw-bold text-dark mb-1">Order Placed</h6>
-                                                            <p class="text-muted small mb-0">Your order has been placed.</p>
-                                                            <small class="text-secondary">{{ pickup.created_at|date:"h:i A, d F, Y" }}</small>
-                                                        </div>
-                                                    </div>
 
-                                                    <!-- Dynamic Updates -->
-                                                    {% for update in pickup.status_updates.all|dictsort:"timestamp" %}
-                                                        {% if update.status != "Order Placed" %}
-                                                        <div class="timeline-item active">
-                                                            <div class="timeline-marker"></div>
-                                                            <div class="timeline-content">
-                                                                <h6 class="fw-bold text-dark mb-1">{{ update.status }}</h6>
-                                                                <p class="text-muted small mb-0">{{ update.description|default:update.location }}</p>
-                                                                <small class="text-secondary">{{ update.timestamp|date:"h:i A, d F, Y" }}</small>
-                                                            </div>
-                                                        </div>
-                                                        {% endif %}
-                                                    {% endfor %}
-
-                                                    <!-- Final Step: Collected/Cancelled -->
-                                                    {% if pickup.status == 'COLLECTED' or pickup.actual_weight %}
-                                                    <div class="timeline-item active">
-                                                        <div class="timeline-marker"></div>
-                                                        <div class="timeline-content">
-                                                            <h6 class="fw-bold text-dark mb-1">Collected</h6>
-                                                            <p class="text-muted small mb-0">Scrap collected successfully.</p>
-                                                            <small class="text-secondary">{{ pickup.completed_at|date:"h:i A, d F, Y" }}</small>
-                                                        </div>
-                                                    </div>
-                                                    {% elif pickup.status == 'CANCELLED' %}
-                                                     <div class="timeline-item">
-                                                        <div class="timeline-marker bg-danger"></div>
-                                                        <div class="timeline-content">
-                                                            <h6 class="fw-bold text-danger mb-1">Cancelled</h6>
-                                                            <p class="text-muted small mb-0">This order was cancelled.</p>
-                                                            <small class="text-secondary">{{ pickup.updated_at|date:"h:i A, d F, Y" }}</small>
-                                                        </div>
-                                                    </div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </td>
                         </tr>
                         {% empty %}
@@ -184,7 +127,7 @@
         padding-left: 30px;
         padding-bottom: 30px;
     }
-    
+
     .timeline-item:last-child {
         padding-bottom: 0;
     }
@@ -208,7 +151,7 @@
     .timeline-item.active::before {
         background-color: #2e7d32;
     }
-    
+
     .timeline-marker {
         position: absolute;
         left: 0;
@@ -230,4 +173,70 @@
         box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
     }
 </style>
+
+<!-- Modals moved outside to prevent stacking context issues -->
+{% for pickup in pickups %}
+<!-- Tracking Modal -->
+<div class="modal fade" id="trackModal{{ pickup.id }}" tabindex="-1" aria-hidden="true">
+    <!-- Added modal-dialog-scrollable for proper scrolling -->
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark">Order Tracking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Standard Bootstrap scrolling body -->
+            <div class="modal-body p-4">
+                <div class="tracking-timeline">
+                    <!-- Step 1: Order Placed (Always First) -->
+                    <div class="timeline-item active">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h6 class="fw-bold text-dark mb-1">Order Placed</h6>
+                            <p class="text-muted small mb-0">Your order has been placed.</p>
+                            <small class="text-secondary">{{ pickup.created_at|date:"h:i A, d F, Y" }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Updates -->
+                    {% for update in pickup.status_updates.all|dictsort:"timestamp" %}
+                    {% if update.status != "Order Placed" %}
+                    <div class="timeline-item active">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h6 class="fw-bold text-dark mb-1">{{ update.status }}</h6>
+                            <p class="text-muted small mb-0">{{ update.description|default:update.location }}</p>
+                            <small class="text-secondary">{{ update.timestamp|date:"h:i A, d F, Y" }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    <!-- Final Step: Collected/Cancelled -->
+                    {% if pickup.status == 'COLLECTED' or pickup.actual_weight %}
+                    <div class="timeline-item active">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h6 class="fw-bold text-dark mb-1">Collected</h6>
+                            <p class="text-muted small mb-0">Scrap collected successfully.</p>
+                            <small class="text-secondary">{{ pickup.completed_at|date:"h:i A, d F, Y" }}</small>
+                        </div>
+                    </div>
+                    {% elif pickup.status == 'CANCELLED' %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-danger"></div>
+                        <div class="timeline-content">
+                            <h6 class="fw-bold text-danger mb-1">Cancelled</h6>
+                            <p class="text-muted small mb-0">This order was cancelled.</p>
+                            <small class="text-secondary">{{ pickup.updated_at|date:"h:i A, d F, Y" }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 {% endblock %}

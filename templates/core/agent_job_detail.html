@@ -17,8 +17,7 @@
                         <div class="col-6">
                             <small class="text-secondary text-uppercase fw-bold"
                                 style="font-size: 0.7rem;">Customer</small>
-                            <p class="fw-bold mb-0 text-dark">{{ pickup.customer.name|default:pickup.customer.username
-                                }}</p>
+                            <p class="fw-bold mb-0 text-dark">{{ pickup.customer.name|default:pickup.customer.username }}</p>
                         </div>
                         <div class="col-6">
                             <small class="text-secondary text-uppercase fw-bold"
@@ -34,8 +33,7 @@
                                 Category</small>
                             <p class="fw-bold mb-0 text-dark">
                                 {% if pickup.scrap_category %}
-                                {{ pickup.scrap_category.name }} <span class="badge bg-green-soft text-success">₹{{
-                                    pickup.scrap_category.rate_per_kg }}/kg</span>
+                                {{ pickup.scrap_category.name }} <span class="badge bg-green-soft text-success">₹{{ pickup.scrap_category.rate_per_kg }}/kg</span>
                                 {% else %}
                                 <span class="badge bg-warning text-dark">Not Specified</span>
                                 {% endif %}
@@ -59,63 +57,13 @@
                 </div>
             </div>
 
-            <!-- Job History / Timeline Updates -->
-            <div class="card glass-card border-0 mb-4">
-                <div class="card-header bg-transparent border-0 pt-3 pb-0">
-                    <h5 class="fw-bold">Tracking Updates</h5>
-                </div>
-                <div class="card-body">
-                    {% if pickup.status_updates.all %}
-                    <div class="timeline ps-3 border-start border-2 border-light">
-                        {% for update in pickup.status_updates.all %}
-                        <div class="position-relative mb-4 ps-4">
-                            <!-- Dot -->
-                            <div class="position-absolute top-0 start-0 translate-middle rounded-circle bg-primary"
-                                style="width: 12px; height: 12px; left: -1px !important;"></div>
-
-                            <p class="fw-bold mb-0 text-dark">{{ update.status }}</p>
-                            <p class="small text-muted mb-1">{{ update.location }}</p>
-                            {% if update.description %}<p class="small text-secondary fst-italic mb-1">"{{
-                                update.description }}"</p>{% endif %}
-                            <small class="text-muted" style="font-size: 0.75rem;">{{ update.timestamp|date:"h:i A, d M"
-                                }}</small>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-muted text-center py-3">No updates yet.</p>
-                    {% endif %}
-                </div>
-            </div>
+            <!-- Job History / Timeline Updates removed as per request -->
         </div>
 
         <!-- Actions Column -->
         <div class="col-lg-4">
 
-            <!-- Update Status Card -->
-            <div class="card glass-card border-0 mb-4">
-                <div class="card-body">
-                    <h5 class="fw-bold text-primary mb-3"><i class="fas fa-bullhorn me-2"></i>Post Update</h5>
-                    <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="status_update" value="true">
-
-                        <div class="mb-3">
-                            {{ update_form.status }}
-                        </div>
-                        <div class="mb-3">
-                            {{ update_form.location }}
-                        </div>
-                        <div class="mb-3">
-                            {{ update_form.description }}
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-outline-primary">Send Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <!-- Update Status Card removed as per request -->
 
             <!-- Finalize Job Card -->
             <div class="card glass-card border-0">
@@ -156,8 +104,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const weightInput = document.querySelector('input[name="actual_weight"]');
             const totalDisplay = document.getElementById('live-total');
-            const ratePerKg = {{ pickup.scrap_category.rate_per_kg|default: "0"
-        }};
+            const ratePerKg = {{ pickup.scrap_category.rate_per_kg|default:"0" }};
 
         weightInput.addEventListener('input', function () {
             const weight = parseFloat(this.value) || 0;
@@ -169,17 +116,17 @@
         weightInput.dispatchEvent(new Event('input'));
         });
     </script>
-
+    
     <style>
         /* Agent Timeline Styles */
         .timeline {
             position: relative;
         }
-
+        
         /* Ensure the dot is positioned correctly on the border line */
         .position-absolute.rounded-circle {
             z-index: 2;
-            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1); 
         }
     </style>
 </div>
