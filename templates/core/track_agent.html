@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Track Agent - ScrapeWale{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .agent-info-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-success mb-2">Live Tracking</h2>
+            <p class="text-muted">Tracking Agent for Pickup #{{ pickup.id }}</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-pill">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div id="map"></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="agent-info-card">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style="width: 50px; height: 50px; font-size: 1.2rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">{{ pickup.agent.name|default:"Agent Assigned" }}</h5>
+                        <small class="text-muted">Pickup Partner</small>
+                    </div>
+                </div>
+
+                <hr class="text-muted my-3">
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Status</span>
+                        <span class="badge bg-success">{{ pickup.get_status_display }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Est. Arrival</span>
+                        <span class="fw-bold text-dark">{{ estimated_arrival }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Vehicle</span>
+                        <span class="fw-bold text-dark">Tata Ace (MH-12-AB-1234)</span>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <a href="tel:{{ pickup.agent.phone }}" class="btn btn-primary-custom text-dark rounded-pill">
+                        <i class="fas fa-phone-alt me-2"></i>Call Agent
+                    </a>
+                </div>
+            </div>
+
+            <div class="alert alert-info border-0 shadow-sm rounded-3">
+                <i class="fas fa-info-circle me-2"></i>
+                Agent is on the way to <strong>{{ pickup.address|truncatechars:30 }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Default Coords (Pune/Mumbai Region Demo)
+        const customerLat = 18.5204;
+        const customerLng = 73.8567;
+
+        // Agent starts slightly away
+        let agentLat = 18.5284;
+        let agentLng = 73.8597;
+
+        const map = L.map('map').setView([customerLat, customerLng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Custom Icons
+        const homeIcon = L.divIcon({
+            html: '<div style="background:#2e7d32; width:30px; height:30px; border-radius:50%; border:3px solid white; box-shadow:0 3px 6px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; color:white;"><i class="fas fa-home"></i></div>',
+            className: 'custom-div-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        const truckIcon = L.divIcon({
+            html: '<div style="background:#fbc02d; width:40px; height:40px; border-radius:50%; border:3px solid white; box-shadow:0 3px 6px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; color:#212121;"><i class="fas fa-truck"></i></div>',
+            className: 'custom-div-icon',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        // Markers
+        const customerMarker = L.marker([customerLat, customerLng], { icon: homeIcon }).addTo(map)
+            .bindPopup("<b>Your Location</b><br>Pickup Address").openPopup();
+
+        const agentMarker = L.marker([agentLat, agentLng], { icon: truckIcon }).addTo(map)
+            .bindPopup("<b>Agent Location</b><br>On the way");
+
+        // Fit bounds
+        const group = new L.featureGroup([customerMarker, agentMarker]);
+        map.fitBounds(group.getBounds().pad(0.2));
+
+        // Simulate Movement
+        setInterval(() => {
+            // Move agent slightly towards customer
+            agentLat += (customerLat - agentLat) * 0.05;
+            agentLng += (customerLng - agentLng) * 0.05;
+
+            agentMarker.setLatLng([agentLat, agentLng]);
+        }, 2000);
+    });
+</script>
+{% endblock %}

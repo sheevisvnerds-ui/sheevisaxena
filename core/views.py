@@ -4,8 +4,9 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-from .forms import PickupRequestForm, CustomerSignupForm, AgentSignupForm
-from .models import PickupRequest, ScrapCategory
+from django.utils import timezone
+from .forms import PickupRequestForm, CustomerSignupForm, AgentSignupForm, UnifiedSignupForm, PickupStatusUpdateForm
+from .models import PickupRequest, ScrapCategory, PickupStatusUpdate
 
 class HomeView(TemplateView):
     template_name = 'core/home.html'
@@ -107,29 +108,76 @@ class AgentAcceptPickupView(LoginRequiredMixin, View):
 class AgentJobDetailView(LoginRequiredMixin, View):
     def get(self, request, pk):
         pickup = get_object_or_404(PickupRequest, pk=pk, agent=request.user)
-        return render(request, 'core/agent_job_detail.html', {'pickup': pickup})
+        update_form = PickupStatusUpdateForm()
+        return render(request, 'core/agent_job_detail.html', {
+            'pickup': pickup,
+            'update_form': update_form
+        })
 
     def post(self, request, pk):
         pickup = get_object_or_404(PickupRequest, pk=pk, agent=request.user)
-        actual_weight = float(request.POST.get('actual_weight', 0))
         
-        if pickup.scrap_category:
-            rate = float(pickup.scrap_category.rate_per_kg)
-        else:
-            rate = 0.0 # Or default rate
+        if 'status_update' in request.POST:
+            form = PickupStatusUpdateForm(request.POST)
+            if form.is_valid():
+                update = form.save(commit=False)
+                update.pickup = pickup
+                update.save()
+                messages.success(request, "Status updated successfully!")
+            else:
+                messages.error(request, "Error updating status.")
+            return redirect('agent_job_detail', pk=pk)
+            
+        elif 'complete_job' in request.POST:
+            actual_weight = float(request.POST.get('actual_weight', 0))
+            
+            if pickup.scrap_category:
+                rate = float(pickup.scrap_category.rate_per_kg)
+            else:
+                rate = 0.0 
 
-        total_amount = actual_weight * rate
+            total_amount = actual_weight * rate
 
-        pickup.actual_weight = actual_weight
-        pickup.total_amount = total_amount
-        pickup.status = PickupRequest.Status.COLLECTED
-        pickup.save()
+            pickup.actual_weight = actual_weight
+            pickup.total_amount = total_amount
+            pickup.status = PickupRequest.Status.COLLECTED
+            pickup.completed_at = timezone.now() # Ensure we set the completion time
+            pickup.save()
+            
+            # Add a final 'Collected' status update automatically
+            PickupStatusUpdate.objects.create(
+                pickup=pickup,
+                status="Collected",
+                location="Customer Doorstep",
+                description=f"Collection completed. Weight: {actual_weight}kg"
+            )
+            
+            messages.success(request, f"Job Completed! Amount to Pay: ₹{total_amount}")
+            return redirect('agent_dashboard')
+            
+        return redirect('agent_job_detail', pk=pk)
+
+# ... (Other classes)
+
+class TrackAgentView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        # Only allow the customer to track their own pickup
+        pickup = get_object_or_404(PickupRequest, pk=pk)
+        if request.user.role == User.Role.CUSTOMER and pickup.customer != request.user:
+             return redirect('dashboard')
         
-        messages.success(request, f"Job Completed! Amount to Pay: ₹{total_amount}")
-        return redirect('agent_dashboard')
+        # Fetch status timeline
+        timeline = pickup.status_updates.all()
+
+        context = {
+            'pickup': pickup,
+            'api_key': 'demo', 
+            'estimated_arrival': '15 mins'
+        }
+        return render(request, 'core/track_agent.html', context)
 
 class CustomerSignupView(CreateView):
-    form_class = CustomerSignupForm
+    form_class = UnifiedSignupForm
     template_name = 'core/signup.html'
     success_url = reverse_lazy('login')
 
@@ -151,3 +199,21 @@ class AgentSignupView(CreateView):
 
 class PartnerWithUsView(TemplateView):
     template_name = 'core/partner_with_us.html'
+
+class TrackAgentView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        # Only allow the customer to track their own pickup
+        pickup = get_object_or_404(PickupRequest, pk=pk, customer=request.user)
+        
+        # Ensure status is appropriate for tracking (e.g., Assigned or Collected)
+        # For DEMO purposes, we allow PENDING tracking so the user can see it immediately
+        # if pickup.status == PickupRequest.Status.PENDING:
+        #      messages.warning(request, "Agent not assigned yet.")
+        #      return redirect('dashboard')
+             
+        context = {
+            'pickup': pickup,
+            'api_key': 'demo', # Leaflet doesn't strictly need one for OSM
+            'estimated_arrival': '15 mins'
+        }
+        return render(request, 'core/track_agent.html', context)

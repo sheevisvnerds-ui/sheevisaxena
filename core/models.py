@@ -49,3 +49,16 @@ class PickupRequest(models.Model):
 
     def __str__(self):
         return f"Pickup #{self.id} - {self.customer.username} ({self.status})"
+
+class PickupStatusUpdate(models.Model):
+    pickup = models.ForeignKey(PickupRequest, on_delete=models.CASCADE, related_name='status_updates')
+    status = models.CharField(max_length=100, help_text="Short status, e.g., 'On the way'")
+    location = models.CharField(max_length=255, help_text="Current location, e.g., 'Surat'")
+    description = models.TextField(blank=True, null=True, help_text="Optional details")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.status} at {self.location} ({self.timestamp})"
