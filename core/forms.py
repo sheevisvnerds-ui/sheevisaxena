@@ -58,10 +58,10 @@ class UnifiedSignupForm(UserCreationForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}))
     
     ROLE_CHOICES = [
-        ('CUSTOMER', 'I want to Sell Scrap'),
-        ('AGENT', 'I want to become a Pickup Partner'),
+        ('CUSTOMER', 'Customer'),
+        ('AGENT', 'Pickup Agent'),
     ]
-    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.RadioSelect(attrs={'class': 'btn-check'}), initial='CUSTOMER')
+    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}), initial='CUSTOMER')
     
     phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}))
     address = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Service Area (Agents Only)'}))
