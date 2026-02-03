@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils import timezone
 from .forms import PickupRequestForm, CustomerSignupForm, AgentSignupForm, UnifiedSignupForm, PickupStatusUpdateForm
-from .models import PickupRequest, ScrapCategory, PickupStatusUpdate
+from .models import PickupRequest, ScrapCategory, PickupStatusUpdate, User
 
 class HomeView(TemplateView):
     template_name = 'core/home.html'
@@ -187,6 +187,16 @@ class CustomerSignupView(CreateView):
 
 class CustomLoginView(LoginView):
     template_name = 'core/login.html'
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.role == User.Role.AGENT:
+            return reverse_lazy('agent_dashboard')
+        elif user.role == User.Role.CUSTOMER:
+            return reverse_lazy('dashboard')
+        elif user.is_staff:
+             return reverse_lazy('admin:index')
+        return super().get_success_url()
 
 class AgentSignupView(CreateView):
     form_class = AgentSignupForm

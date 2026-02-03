@@ -38,8 +38,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="{{ form.address.id_for_label }}" class="form-label fw-bold">Pickup
-                                Address</label>
+                            <label for="{{ form.address.id_for_label }}" class="form-label fw-bold">Pickup Address <i
+                                    class="fas fa-info-circle text-muted ms-1" title="(include pincode)"></i></label>
                             {{ form.address }}
                             {% if form.address.errors %}
                             <div class="text-danger small">{{ form.address.errors }}</div>
