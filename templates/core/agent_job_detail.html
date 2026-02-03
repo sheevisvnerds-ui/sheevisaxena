@@ -17,7 +17,7 @@
                         <div class="col-6">
                             <small class="text-secondary text-uppercase fw-bold"
                                 style="font-size: 0.7rem;">Customer</small>
-                            <p class="fw-bold mb-0 text-dark">{{ pickup.customer.name|default:pickup.customer.username }}</p>
+                            <p class="fw-bold mb-0 text-dark">{{ pickup.customer.name }}</p>
                         </div>
                         <div class="col-6">
                             <small class="text-secondary text-uppercase fw-bold"
@@ -33,7 +33,10 @@
                                 Category</small>
                             <p class="fw-bold mb-0 text-dark">
                                 {% if pickup.scrap_category %}
-                                {{ pickup.scrap_category.name }} <span class="badge bg-green-soft text-success">₹{{ pickup.scrap_category.rate_per_kg }}/kg</span>
+                                {{ pickup.scrap_category.name }}
+                                <span class="badge bg-green-soft text-success">
+                                    ₹{{ pickup.scrap_category.rate_per_kg }}/kg
+                                </span>
                                 {% else %}
                                 <span class="badge bg-warning text-dark">Not Specified</span>
                                 {% endif %}
@@ -104,29 +107,29 @@
         document.addEventListener('DOMContentLoaded', function () {
             const weightInput = document.querySelector('input[name="actual_weight"]');
             const totalDisplay = document.getElementById('live-total');
-            const ratePerKg = {{ pickup.scrap_category.rate_per_kg|default:"0" }};
+            const ratePerKg = parseFloat("{{ pickup.scrap_category.rate_per_kg|default:0 }}");
 
-        weightInput.addEventListener('input', function () {
-            const weight = parseFloat(this.value) || 0;
-            const total = weight * ratePerKg;
-            totalDisplay.textContent = '₹' + total.toFixed(2);
-        });
+            weightInput.addEventListener('input', function () {
+                const weight = parseFloat(this.value) || 0;
+                const total = weight * ratePerKg;
+                totalDisplay.textContent = '₹' + total.toFixed(2);
+            });
 
-        // Trigger calculation on load
-        weightInput.dispatchEvent(new Event('input'));
+            // Trigger calculation on load
+            weightInput.dispatchEvent(new Event('input'));
         });
     </script>
-    
+
     <style>
         /* Agent Timeline Styles */
         .timeline {
             position: relative;
         }
-        
+
         /* Ensure the dot is positioned correctly on the border line */
         .position-absolute.rounded-circle {
             z-index: 2;
-            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1); 
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
         }
     </style>
 </div>

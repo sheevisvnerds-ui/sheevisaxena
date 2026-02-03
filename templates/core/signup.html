@@ -20,11 +20,17 @@
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="mb-3">
-                        <label class="form-label">{{ field.label }}</label>
+                        <label class="form-label">
+                            {{ field.label }}
+                            {% if field.help_text %}
+                            <button type="button" class="btn btn-sm btn-link text-muted p-0 ms-1"
+                                style="font-size: 0.75rem;" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="{{ field.help_text|striptags }}">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                            {% endif %}
+                        </label>
                         {{ field }}
-                        {% if field.help_text %}
-                        <div class="form-text small text-muted">{{ field.help_text }}</div>
-                        {% endif %}
                         {% if field.errors %}
                         <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
                         {% endif %}
@@ -46,4 +52,14 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize Bootstrap tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
 {% endblock %}

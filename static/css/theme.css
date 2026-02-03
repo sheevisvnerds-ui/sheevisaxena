@@ -554,3 +554,15 @@ body.dark-mode .price-estimation-card .price-value {
     color: #81c784;
     text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
 }
+
+/* Fix Logout Button Visibility in Dark Mode */
+body.dark-mode .btn-outline-dark {
+    color: #f0f0f0 !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+body.dark-mode .btn-outline-dark:hover {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}

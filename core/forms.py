@@ -70,6 +70,10 @@ class UnifiedSignupForm(UserCreationForm):
         model = User
         fields = UserCreationForm.Meta.fields + ('name', 'phone', 'address')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].help_text = "Required. 50 characters or fewer. Letters, digits and @/./+/-/_ only."
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.role = self.cleaned_data['role']

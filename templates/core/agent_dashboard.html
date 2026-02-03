@@ -80,9 +80,9 @@
                                 <small class="text-muted fw-bold">#{{ pickup.id }}</small>
                             </div>
                             <div class="card-body px-4 pt-2">
-                                <h5 class="fw-bold text-dark mt-2 mb-1">{{ pickup.customer.name|default:pickup.customer.username }}</h5>
+                                <h5 class="fw-bold text-dark mt-2 mb-1">{{ pickup.customer.name }}</h5>
                                 <a href="tel:{{ pickup.customer.phone }}" class="text-decoration-none text-muted small">
-                                    <i class="fas fa-phone-alt me-1 text-success"></i> {{ pickup.customer.phone|default:"N/A" }}
+                                    <i class="fas fa-phone-alt me-1 text-success"></i> {{ pickup.customer.phone }}
                                 </a>
 
                                 <div class="bg-light p-3 rounded-3 mt-3 mb-3">
@@ -143,11 +143,11 @@
                                 <span
                                     class="position-absolute top-0 end-0 m-3 badge bg-yellow-soft text-warning fw-bold rounded-pill px-3">New</span>
 
-                                <h6 class="text-uppercase text-muted fw-bold small mb-2">{{ pickup.scrap_category.name|default:"Mixed Scrap" }}</h6>
+                                <h6 class="text-muted fw-bold small mb-2">{{ pickup.scrap_category.name }}</h6>
 
                                 <h6 class="fw-bold text-dark mb-1">
                                     <i class="fas fa-user-circle me-1 text-primary"></i>
-                                    {{ pickup.customer.name|default:pickup.customer.username }}
+                                    {{ pickup.customer.name }}
                                 </h6>
                                 <h4 class="fw-bold">{{ pickup.estimated_weight }} <small class="fs-6 text-muted">kg
                                         (Est.)</small></h4>
@@ -209,7 +209,7 @@
                                 <tr>
                                     <td class="ps-4 fw-bold text-muted">#{{ pickup.id }}</td>
                                     <td>
-                                        <div class="fw-bold text-dark">{{ pickup.customer.name|default:pickup.customer.username }}</div>
+                                        <div class="fw-bold text-dark">{{ pickup.customer.name }}</div>
                                         <small class="text-muted">{{ pickup.address|truncatechars:25 }}</small>
                                     </td>
                                     <td>
@@ -363,53 +363,93 @@
             }
         }
 
-        /* Dark Mode Overrides (if global theme supports it) */
+        /* Dark Mode Overrides (Premium Polish) */
         body.dark-mode .agent-dashboard {
-            background-color: #121212;
+            background-color: #000000;
+            /* Deep black for OLED feel or #121212 */
         }
 
         body.dark-mode .text-dark {
-            color: #f8f9fa !important;
+            color: #f0f0f0 !important;
+        }
+
+        body.dark-mode .text-muted {
+            color: #b0b0b0 !important;
         }
 
         body.dark-mode .bg-white {
             background-color: #1e1e1e !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        body.dark-mode .stat-card,
+        body.dark-mode .stat-card {
+            background-color: #1e1e1e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
         body.dark-mode .task-card {
             background-color: #1e1e1e;
-            border-color: #333;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
         }
 
         body.dark-mode .glass-panel {
-            background: rgba(30, 30, 30, 0.7);
-            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.8);
+            border-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
         }
 
         body.dark-mode .nav-pills .nav-link {
-            color: #aaa;
+            color: #aaaaaa;
+        }
+
+        body.dark-mode .nav-pills .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
         }
 
         body.dark-mode .nav-pills .nav-link.active {
-            background-color: #fff;
-            color: #000;
+            background-color: #2e7d32;
+            /* Keep brand green */
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(46, 125, 50, 0.4);
         }
 
         body.dark-mode .table {
-            color: #ddd;
+            color: #e0e0e0;
         }
 
         body.dark-mode .table thead {
-            background-color: #2c2c2c;
+            background-color: #252525;
+        }
+
+        body.dark-mode .table thead th {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #b0b0b0;
         }
 
         body.dark-mode .card-header {
             background-color: #1e1e1e;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         body.dark-mode .bg-light {
-            background-color: #2c2c2c !important;
+            background-color: #2a2a2a !important;
+        }
+
+        body.dark-mode .border-top {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body.dark-mode .btn-outline-dark {
+            color: #f0f0f0;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        body.dark-mode .btn-outline-dark:hover {
+            background-color: #fff;
+            color: #000;
         }
     </style>
     {% endblock %}
