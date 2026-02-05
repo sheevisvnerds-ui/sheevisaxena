@@ -1,109 +1,102 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Book Pickup - ScrapeWale{% endblock %}
+{% block title %}Book a Pickup - ScrapeWale{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card glass-card p-4">
-                <div class="card-body">
-                    <h2 class="fw-bold text-center text-success mb-4">Book a Pickup</h2>
-                    <p class="text-center text-muted mb-4">Schedule a doorstep scrap collection</p>
-
-                    <form method="post">
-                        {% csrf_token %}
-
-                        <div class="mb-3">
-                            <label for="{{ form.scrap_category.id_for_label }}" class="form-label fw-bold">Select Scrap
-                                Category</label>
-                            {{ form.scrap_category }}
-                            {% if form.scrap_category.errors %}
-                            <div class="text-danger small">{{ form.scrap_category.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Live Calculation Display -->
-                        <!-- Live Calculation Display -->
-                        <div class="price-estimation-card d-none" id="calculation-result">
-                            <div class="text-center">
-                                <h5>Current Rate</h5>
-                                <div class="price-value" id="display-rate">₹0</div>
-                            </div>
-                            <div class="vr mx-3" style="height: 40px; opacity: 0.2;"></div>
-                            <div class="text-center">
-                                <h5>Est. Total</h5>
-                                <div class="price-value text-success" id="display-total">₹0</div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.address.id_for_label }}" class="form-label fw-bold">Pickup Address <i
-                                    class="fas fa-info-circle text-muted ms-1" title="(include pincode)"></i></label>
-                            {{ form.address }}
-                            {% if form.address.errors %}
-                            <div class="text-danger small">{{ form.address.errors }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.estimated_weight.id_for_label }}" class="form-label fw-bold">Est.
-                                    Weight (Kg)</label>
-                                {{ form.estimated_weight }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.scheduled_date.id_for_label }}" class="form-label fw-bold">Preferred
-                                    Time</label>
-                                {{ form.scheduled_date }}
-                            </div>
-                        </div>
-
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary-custom btn-lg">Schdedule Pickup</button>
-                        </div>
-                    </form>
+            <div class="card glass-card border-0 shadow-lg rounded-4 p-4">
+                <div class="text-center mb-4">
+                    <div class="bg-success bg-opacity-10 d-inline-block p-3 rounded-circle mb-3">
+                        <i class="fas fa-truck-pickup fa-2x text-success"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark">Schedule Pickup</h2>
+                    <p class="text-muted">Fill in the details below to schedule your scrap pickup.</p>
                 </div>
+
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger rounded-3">
+                        {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.scrap_category.id_for_label }}"
+                            class="form-label fw-bold small text-muted text-uppercase">Scrap Category</label>
+                        {{ form.scrap_category }}
+                        {% if form.scrap_category.errors %}
+                        <div class="text-danger small mt-1">{{ form.scrap_category.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.estimated_weight.id_for_label }}"
+                                class="form-label fw-bold small text-muted text-uppercase">Est. Weight (Kg)</label>
+                            {{ form.estimated_weight }}
+                            {% if form.estimated_weight.errors %}
+                            <div class="text-danger small mt-1">{{ form.estimated_weight.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.scheduled_date.id_for_label }}"
+                                class="form-label fw-bold small text-muted text-uppercase">Preferred Date/Time</label>
+                            {{ form.scheduled_date }}
+                            {% if form.scheduled_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.scheduled_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.address.id_for_label }}"
+                            class="form-label fw-bold small text-muted text-uppercase">Pickup Address</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                        <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text small"><i class="fas fa-info-circle me-1"></i> Please provide a complete
+                            address for smoother pickup.</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg rounded-3 fw-bold">
+                            <i class="fas fa-check-circle me-2"></i> Confirm Booking
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-light rounded-3 fw-bold text-muted">Cancel</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const categorySelect = document.getElementById('{{ form.scrap_category.id_for_label }}');
-        const weightInput = document.getElementById('{{ form.estimated_weight.id_for_label }}');
-        const calcResult = document.getElementById('calculation-result');
-        const displayRate = document.getElementById('display-rate');
-        const displayTotal = document.getElementById('display-total');
-
-        // Rates Dictionary generated from backend
-        const rates = {
-            {% for cat in scrap_categories %}
-        "{{ cat.id }}": { { cat.rate_per_kg } },
-        {% endfor %}
-    };
-
-    function updateCalculation() {
-        const catId = categorySelect.value;
-        const weight = parseFloat(weightInput.value) || 0;
-
-        if (catId && rates[catId]) {
-            const rate = rates[catId];
-            const total = rate * weight;
-
-            displayRate.textContent = '₹' + rate;
-            displayTotal.textContent = '₹' + total.toFixed(2);
-            calcResult.classList.remove('d-none');
-        } else {
-            calcResult.classList.add('d-none');
-        }
+<style>
+    /* Custom Tweaks for Form Controls to match theme */
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #2e7d32;
+        box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25);
     }
 
-    if (categorySelect && weightInput) {
-        categorySelect.addEventListener('change', updateCalculation);
-        weightInput.addEventListener('input', updateCalculation);
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
     }
-    });
-</script>
+
+    body.dark-mode .glass-card {
+        background: rgba(30, 30, 30, 0.95);
+    }
+
+    body.dark-mode .text-dark {
+        color: #f8f9fa !important;
+    }
+</style>
 {% endblock %}
