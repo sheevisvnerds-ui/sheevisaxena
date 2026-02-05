@@ -23,6 +23,19 @@ class PickupStatusUpdateForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Optional details...'}),
         }
 
+class ReschedulePickupForm(forms.ModelForm):
+    class Meta:
+        model = PickupRequest
+        fields = ['scheduled_date']
+        widgets = {
+            'scheduled_date': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+        }
+    
+    def clean_scheduled_date(self):
+        scheduled_date = self.cleaned_data['scheduled_date']
+        # Add basic validation if needed, e.g. not in past
+        return scheduled_date
+
 class CustomerSignupForm(UserCreationForm):
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}))
     phone = forms.CharField(max_length=15, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}))

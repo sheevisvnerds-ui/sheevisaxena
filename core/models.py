@@ -34,6 +34,7 @@ class PickupRequest(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pickup_requests', limit_choices_to={'role': User.Role.CUSTOMER})
     agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_pickups', limit_choices_to={'role': User.Role.AGENT})
     scrap_category = models.ForeignKey(ScrapCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='pickup_requests')
+    rejected_by = models.ManyToManyField(User, related_name='rejected_requests', blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     scheduled_date = models.DateTimeField()
     address = models.TextField()

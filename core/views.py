@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils import timezone
-from .forms import PickupRequestForm, CustomerSignupForm, AgentSignupForm, UnifiedSignupForm, PickupStatusUpdateForm
+from .forms import PickupRequestForm, CustomerSignupForm, AgentSignupForm, UnifiedSignupForm, PickupStatusUpdateForm, ReschedulePickupForm
 from .models import PickupRequest, ScrapCategory, PickupStatusUpdate, User
 
 class HomeView(TemplateView):
@@ -80,7 +80,7 @@ class AgentDashboardView(LoginRequiredMixin, TemplateView):
         context['pending_requests'] = PickupRequest.objects.filter(
             agent__isnull=True, 
             status=PickupRequest.Status.PENDING
-        ).order_by('created_at')
+        ).exclude(rejected_by=user).order_by('created_at')
 
         # 3. Task Completed (Assigned to me, Collected)
         context['completed_tasks'] = PickupRequest.objects.filter(
@@ -102,6 +102,54 @@ class AgentAcceptPickupView(LoginRequiredMixin, View):
             messages.success(request, f"Pickup #{pickup.id} accepted successfully!")
         else:
             messages.error(request, "This pickup is no longer available.")
+            
+        return redirect('agent_dashboard')
+
+        return redirect('agent_dashboard')
+
+class ReschedulePickupView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        pickup = get_object_or_404(PickupRequest, pk=pk)
+        
+        # Permission Check:
+        # Customer can reschedule their own
+        # Agent can reschedule assigned pickups
+        is_customer = request.user.role == User.Role.CUSTOMER and pickup.customer == request.user
+        is_agent = request.user.role == User.Role.AGENT and pickup.agent == request.user
+        
+        if not (is_customer or is_agent):
+             messages.error(request, "You are not authorized to reschedule this pickup.")
+             return redirect('dashboard') # Default redirect
+
+        form = ReschedulePickupForm(request.POST, instance=pickup)
+        if form.is_valid():
+            pickup = form.save()
+            
+            # Log the change
+            PickupStatusUpdate.objects.create(
+                pickup=pickup,
+                status="Rescheduled",
+                location="Online",
+                description=f"Rescheduled to {pickup.scheduled_date.strftime('%d %b %Y, %H:%M')}"
+            )
+            
+            messages.success(request, "Pickup rescheduled successfully.")
+        else:
+            messages.error(request, "Invalid date provided.")
+
+        # Redirect back to appropriate dashboard
+        if is_agent:
+            return redirect('agent_dashboard')
+        else:
+            return redirect('dashboard')
+
+class AgentRejectPickupView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        pickup = get_object_or_404(PickupRequest, pk=pk)
+        
+        # Add the current user to the rejected_by list
+        pickup.rejected_by.add(request.user)
+        messages.success(request, f"Pickup request hidden from your dashboard.")
             
         return redirect('agent_dashboard')
 

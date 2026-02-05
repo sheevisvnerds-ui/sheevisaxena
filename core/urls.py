@@ -5,7 +5,7 @@ from .views import (
     HomeView, BookPickupView, CustomerSignupView, CustomLoginView, 
     CustomerDashboardView, RateCardView, AgentDashboardView, AgentJobDetailView,
     AgentAcceptPickupView, AboutView, ServicesView, PickupDeleteView, AgentSignupView, PartnerWithUsView,
-    TrackAgentView
+    TrackAgentView, AgentRejectPickupView, ReschedulePickupView
 )
 
 urlpatterns = [
@@ -19,10 +19,12 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='home'), name='logout'),
     path('dashboard/', CustomerDashboardView.as_view(), name='dashboard'), 
     path('track/<int:pk>/', TrackAgentView.as_view(), name='track_agent'),
+    path('pickup/reschedule/<int:pk>/', ReschedulePickupView.as_view(), name='reschedule_pickup'),
     
     # Agent Routes
     path('agent/dashboard/', AgentDashboardView.as_view(), name='agent_dashboard'),
     path('agent/accept/<int:pk>/', AgentAcceptPickupView.as_view(), name='agent_accept_pickup'),
+    path('agent/reject/<int:pk>/', AgentRejectPickupView.as_view(), name='agent_reject_pickup'),
     path('agent/job/<int:pk>/', AgentJobDetailView.as_view(), name='agent_job_detail'),
     path('dashboard/delete/<int:pk>/', PickupDeleteView.as_view(), name='pickup_delete'),
     path('partner-with-us/', PartnerWithUsView.as_view(), name='partner_with_us'),

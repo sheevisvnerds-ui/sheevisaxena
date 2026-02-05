@@ -90,6 +90,14 @@
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                     {% endif %}
+
+                                    {% if pickup.status == 'PENDING' or pickup.status == 'ASSIGNED' %}
+                                    <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                                        data-bs-target="#rescheduleModal{{ pickup.id }}" title="Reschedule">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </button>
+                                    {% endif %}
+
                                 </div>
 
 
@@ -233,6 +241,31 @@
                     </div>
                     {% endif %}
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reschedule Modal -->
+<div class="modal fade" id="rescheduleModal{{ pickup.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark">Reschedule Pickup</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{% url 'reschedule_pickup' pickup.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">New Date & Time</label>
+                        <input type="datetime-local" name="scheduled_date" class="form-control rounded-3" required
+                            value="{{ pickup.scheduled_date|date:'Y-m-d\TH:i' }}">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning fw-bold text-dark">Confirm Reschedule</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
