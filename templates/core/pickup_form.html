@@ -36,6 +36,38 @@
                         {% endif %}
                     </div>
 
+                    <!-- Map Trigger Selection -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Location</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="fas fa-map-marker-alt text-danger"></i></span>
+                            <button type="button"
+                                class="btn btn-outline-secondary border-start-0 text-start form-control"
+                                data-bs-toggle="modal" data-bs-target="#mapModal">
+                                Select Location on Map
+                            </button>
+                        </div>
+                        <div class="form-text text-muted" id="location-status">Please pin your location for better
+                            service.</div>
+                    </div>
+
+                    <!-- Visible Location Fields (Read Only) -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <label class="form-label small fw-bold text-muted">Latitude</label>
+                            {{ form.latitude }}
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small fw-bold text-muted">Longitude</label>
+                            {{ form.longitude }}
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small fw-bold text-muted">Pincode</label>
+                            {{ form.pincode }}
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="{{ form.address.id_for_label }}"
                             class="form-label fw-bold small text-muted text-uppercase">Pickup Address</label>
@@ -76,6 +108,29 @@
     </div>
 </div>
 
+<!-- Map Modal -->
+<div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold" id="mapModalLabel"><i class="fas fa-map-marked-alt me-2"></i> Pin Your
+                    Location</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 position-relative">
+                <div id="map" style="height: 400px; width: 100%;"></div>
+            </div>
+            <div class="modal-footer bg-light">
+                <small class="text-muted me-auto"><i class="fas fa-info-circle me-1"></i> Search or drag marker to
+                    adjust.</small>
+                <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">Confirm
+                    Location</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     /* Custom Tweaks for Form Controls to match theme */
     .form-control:focus,
@@ -97,4 +152,163 @@
         color: #f8f9fa !important;
     }
 </style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Mehsana Coordinates
+        var defaultLat = 23.5880;
+        var defaultLng = 72.3693;
+
+        // Define Mehsana Bounds
+        var southWest = L.latLng(23.5000, 72.3000);
+        var northEast = L.latLng(23.7000, 72.5000);
+        var bounds = L.latLngBounds(southWest, northEast);
+
+        var map = null;
+        var marker = null;
+
+        // Function to init map only when modal opens (fixes grey map issue)
+        function initMap() {
+            if (map) return; // Already initialized
+
+            map = L.map('map', {
+                maxBounds: bounds,
+                maxBoundsViscosity: 1.0,
+                minZoom: 12
+            }).setView([defaultLat, defaultLng], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+            marker.on('dragend', function (e) {
+                var lat = e.target.getLatLng().lat;
+                var lng = e.target.getLatLng().lng;
+                fetchAddress(lat, lng); // Reverse Geocode on drag
+                updateInputs(lat, lng);
+            });
+
+            map.on('click', function (e) {
+                if (bounds.contains(e.latlng)) {
+                    marker.setLatLng(e.latlng);
+                    fetchAddress(e.latlng.lat, e.latlng.lng); // Reverse Geocode on click
+                    updateInputs(e.latlng.lat, e.latlng.lng);
+                }
+            });
+
+            // Add Geocoder Control
+            L.Control.geocoder({
+                defaultMarkGeocode: false,
+                geocoder: L.Control.Geocoder.nominatim({
+                    geocodingQueryParams: {
+                        'viewbox': '72.3000,23.7000,72.5000,23.5000',
+                        'bounded': 1
+                    }
+                })
+            })
+                .on('markgeocode', function (e) {
+                    var latlng = e.geocode.center;
+                    if (bounds.contains(latlng)) {
+                        marker.setLatLng(latlng);
+                        map.setView(latlng, 16);
+
+                        // Extract Details from Geocoder Result
+                        var address = e.geocode.name;
+                        var props = e.geocode.properties;
+                        var pincode = "";
+
+                        // Try to find postcode in properties if available
+                        if (props && props.address && props.address.postcode) {
+                            pincode = props.address.postcode;
+                        }
+
+                        updateInputs(latlng.lat, latlng.lng, address, pincode);
+                    } else {
+                        alert("Please select a location within Mehsana.");
+                    }
+                })
+                .addTo(map);
+
+            // Geolocation
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    var latlng = L.latLng(lat, lng);
+                    if (bounds.contains(latlng)) {
+                        map.setView(latlng, 16);
+                        marker.setLatLng(latlng);
+                        updateInputs(lat, lng);
+                        fetchAddress(lat, lng);
+                    }
+                });
+            }
+        }
+
+        // Reverse Geocoding Function
+        function fetchAddress(lat, lng) {
+            var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng;
+
+            fetch(url, {
+                headers: {
+                    'User-Agent': 'ScrapeWale/1.0'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        var address = data.display_name;
+                        var pincode = "";
+                        if (data.address && data.address.postcode) {
+                            pincode = data.address.postcode;
+                        }
+                        updateInputs(lat, lng, address, pincode);
+                    }
+                })
+                .catch(error => console.error('Error fetching address:', error));
+        }
+
+        // Update inputs
+        function updateInputs(lat, lng, address, pincode) {
+            var latInput = document.getElementById('id_latitude');
+            var lngInput = document.getElementById('id_longitude');
+            var addrInput = document.getElementById('id_address');
+            var pinInput = document.getElementById('id_pincode');
+            var statusDiv = document.getElementById('location-status');
+
+            if (latInput) latInput.value = lat.toFixed(6);
+            if (lngInput) lngInput.value = lng.toFixed(6);
+
+            if (address && addrInput) addrInput.value = address;
+            if (pincode && pinInput) pinInput.value = pincode;
+
+            if (statusDiv) {
+                statusDiv.innerHTML = '<i class="fas fa-check-circle text-success"></i> Location selected (' + lat.toFixed(4) + ', ' + lng.toFixed(4) + ')';
+                statusDiv.className = 'form-text text-success fw-bold';
+            }
+        }
+
+        // Initialize inputs
+        updateInputs(defaultLat, defaultLng);
+
+        // Modal Event Listener to trigger map resize
+        var mapModal = document.getElementById('mapModal');
+        mapModal.addEventListener('shown.bs.modal', function () {
+            initMap();
+            setTimeout(function () {
+                map.invalidateSize();
+            }, 10);
+        });
+    });
+</script>
 {% endblock %}

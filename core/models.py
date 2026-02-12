@@ -40,6 +40,10 @@ class PickupRequest(models.Model):
     address = models.TextField()
     estimated_weight = models.FloatField(help_text="Estimated weight in Kg")
     
+    # Location Data
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    
     # Filled by Agent
     actual_weight = models.FloatField(null=True, blank=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)

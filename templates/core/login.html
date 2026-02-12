@@ -16,17 +16,75 @@
                     <p class="text-muted small">Login to access your dashboard</p>
                 </div>
 
+                <style>
+                    /* Custom styles for password toggle */
+                    .input-group {
+                        flex-wrap: nowrap !important;
+                    }
+
+                    .input-group .form-control {
+                        border-top-right-radius: 0 !important;
+                        border-bottom-right-radius: 0 !important;
+                        position: relative;
+                        flex: 1 1 auto;
+                        width: 1% !important;
+                        margin-bottom: 0 !important;
+                    }
+
+                    #togglePassword {
+                        border-top-left-radius: 0 !important;
+                        border-bottom-left-radius: 0 !important;
+                        border-left: 0;
+                        z-index: 5;
+                    }
+                </style>
+
                 <form method="post">
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="mb-4">
-                        <label class="form-label">{{ field.label }}</label>
+                        <label class="form-label fw-bold small text-muted text-uppercase">{{ field.label }}</label>
+                        {% if field.name == 'password' %}
+                        <div class="input-group">
+                            {{ field }}
+                            <button class="btn btn-outline-secondary bg-white border-start-0" type="button"
+                                id="togglePassword"
+                                style="border-color: rgba(0,0,0,0.1); border-radius: 0 12px 12px 0;">
+                                <i class="fas fa-eye text-muted"></i>
+                            </button>
+                        </div>
+                        {% else %}
                         {{ field }}
+                        {% endif %}
                         {% if field.errors %}
-                        <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                        <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
                         {% endif %}
                     </div>
                     {% endfor %}
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const togglePassword = document.querySelector('#togglePassword');
+                            const password = document.querySelector('input[name="password"]');
+
+                            if (togglePassword && password) {
+                                togglePassword.addEventListener('click', function (e) {
+                                    // toggle the type attribute
+                                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                                    password.setAttribute('type', type);
+
+                                    // toggle the eye icon
+                                    this.querySelector('i').classList.toggle('fa-eye');
+                                    this.querySelector('i').classList.toggle('fa-eye-slash');
+                                });
+
+                                // Ensure the password input has the correct border radius on the right
+                                password.style.borderTopRightRadius = '0';
+                                password.style.borderBottomRightRadius = '0';
+                                password.style.borderRight = '0';
+                            }
+                        });
+                    </script>
 
                     <div class="d-grid gap-2 mt-4">
                         <button type="submit" class="btn btn-primary-custom btn-lg shadow-sm">

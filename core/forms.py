@@ -3,14 +3,18 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import PickupRequest, User, PickupStatusUpdate
 
 class PickupRequestForm(forms.ModelForm):
+    pincode = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'placeholder': 'Pincode'}))
+    
     class Meta:
         model = PickupRequest
-        fields = ['scrap_category', 'address', 'estimated_weight', 'scheduled_date']
+        fields = ['scrap_category', 'address', 'pincode', 'estimated_weight', 'scheduled_date', 'latitude', 'longitude']
         widgets = {
             'scrap_category': forms.Select(attrs={'class': 'form-select'}),
             'scheduled_date': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter full address including landmark'}),
             'estimated_weight': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Approx weight in Kg'}),
+            'latitude': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'longitude': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
         }
 
 class PickupStatusUpdateForm(forms.ModelForm):
