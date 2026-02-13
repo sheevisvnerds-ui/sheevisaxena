@@ -94,26 +94,28 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-5">
+    <footer class="bg-dark text-white py-3 mt-5">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <h5>ScrapeWale</h5>
-                    <p class="text-white-50 small">Making scrap selling easy, transparent, and digital. Join the
-                        revolution in waste management.</p>
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <h5 class="mb-1">ScrapeWale</h5>
+                    <p class="text-white-50 small m-0">Making scrap selling easy, transparent, and digital.</p>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'home' %}" class="text-white-50 text-decoration-none">Home</a></li>
-                        <li><a href="{% url 'rate_card' %}" class="text-white-50 text-decoration-none">Rate Card</a>
-                        </li>
-                        <li><a href="{% url 'about' %}" class="text-white-50 text-decoration-none">About Us</a></li>
-                        <li><a href="{% url 'services' %}" class="text-white-50 text-decoration-none">Services</a></li>
-                    </ul>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-inline-block text-start">
+                        <h5 class="mb-2">Quick Links</h5>
+                        <ul class="list-unstyled d-inline-flex gap-3 m-0">
+                            <li><a href="{% url 'home' %}" class="text-white-50 text-decoration-none">Home</a></li>
+                            <li><a href="{% url 'rate_card' %}" class="text-white-50 text-decoration-none">Rate Card</a>
+                            </li>
+                            <li><a href="{% url 'about' %}" class="text-white-50 text-decoration-none">About Us</a></li>
+                            <li><a href="{% url 'services' %}" class="text-white-50 text-decoration-none">Services</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="text-center pt-3 border-top border-secondary">
+            <div class="text-center pt-2 mt-2 border-top border-secondary">
                 <small class="text-white-50">&copy; 2026 ScrapeWale.com. All rights reserved.</small>
             </div>
         </div>

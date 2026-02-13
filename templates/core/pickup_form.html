@@ -4,83 +4,82 @@
 {% block title %}Book a Pickup - ScrapeWale{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-3">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card glass-card border-0 shadow-lg rounded-4 p-4">
-                <div class="text-center mb-4">
-                    <div class="bg-success bg-opacity-10 d-inline-block p-3 rounded-circle mb-3">
-                        <i class="fas fa-truck-pickup fa-2x text-success"></i>
+            <div class="card glass-card border-0 shadow-lg rounded-4 p-3">
+                <div class="text-center mb-2">
+                    <div class="bg-success bg-opacity-10 d-inline-block p-2 rounded-circle mb-2">
+                        <i class="fas fa-truck-pickup fa-lg text-success"></i>
                     </div>
-                    <h2 class="fw-bold text-dark">Schedule Pickup</h2>
-                    <p class="text-muted">Fill in the details below to schedule your scrap pickup.</p>
+                    <h4 class="fw-bold text-dark mb-1">Schedule Pickup</h4>
+                    <p class="text-muted small mb-0">Fill in the details below to schedule your scrap pickup.</p>
                 </div>
 
                 <form method="post" class="needs-validation" novalidate>
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
-                    <div class="alert alert-danger rounded-3">
+                    <div class="alert alert-danger rounded-3 py-2 small">
                         {% for error in form.non_field_errors %}
                         {{ error }}
                         {% endfor %}
                     </div>
                     {% endif %}
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="{{ form.scrap_category.id_for_label }}"
-                            class="form-label fw-bold small text-muted text-uppercase">Select Scrap Category</label>
+                            class="form-label fw-bold small text-muted text-uppercase mb-1">Select Scrap
+                            Category</label>
                         {{ form.scrap_category }}
                         {% if form.scrap_category.errors %}
                         <div class="text-danger small mt-1">{{ form.scrap_category.errors.0 }}</div>
                         {% endif %}
                     </div>
 
-                    <!-- Map Trigger Selection -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted text-uppercase">Location</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i
-                                    class="fas fa-map-marker-alt text-danger"></i></span>
-                            <button type="button"
-                                class="btn btn-outline-secondary border-start-0 text-start form-control"
-                                data-bs-toggle="modal" data-bs-target="#mapModal">
-                                Select Location on Map
+                    <!-- Address Field with Select on Map Button -->
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label for="{{ form.address.id_for_label }}"
+                                class="form-label fw-bold small text-muted text-uppercase mb-0">Address</label>
+                            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 py-0"
+                                data-bs-toggle="modal" data-bs-target="#mapModal" style="font-size: 0.75rem;">
+                                <i class="fas fa-map-marker-alt me-1"></i> Select on Map
                             </button>
                         </div>
-                        <div class="form-text text-muted" id="location-status">Please pin your location for better
-                            service.</div>
-                    </div>
-
-                    <!-- Visible Location Fields (Read Only) -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-4">
-                            <label class="form-label small fw-bold text-muted">Latitude</label>
-                            {{ form.latitude }}
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label small fw-bold text-muted">Longitude</label>
-                            {{ form.longitude }}
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label small fw-bold text-muted">Pincode</label>
-                            {{ form.pincode }}
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="{{ form.address.id_for_label }}"
-                            class="form-label fw-bold small text-muted text-uppercase">Pickup Address</label>
                         {{ form.address }}
                         {% if form.address.errors %}
                         <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
                         {% endif %}
+                        <div class="form-text text-muted small mt-1" id="location-status" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle me-1"></i>Search/Select on map to auto-fill.
+                        </div>
                     </div>
 
-                    <div class="row g-3 mb-4">
+                    <!-- Location Details (Lat, Lng, Pincode) -->
+                    <div class="mb-2">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-1">Location Details</label>
+                        <div class="d-flex align-items-stretch gap-2 loc-details-row">
+                            <div class="input-group flex-nowrap input-group-sm">
+                                <span class="input-group-text bg-white"><i class="fas fa-globe text-muted"></i></span>
+                                {{ form.latitude }}
+                            </div>
+                            <span class="d-flex align-items-center text-muted fw-bold px-0">,</span>
+                            <div class="input-group flex-nowrap input-group-sm">
+                                {{ form.longitude }}
+                            </div>
+                            <div class="input-group flex-nowrap input-group-sm">
+                                <span class="input-group-text bg-white"><i
+                                        class="fas fa-building text-muted"></i></span>
+                                {{ form.pincode }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label for="{{ form.estimated_weight.id_for_label }}"
-                                class="form-label fw-bold small text-muted text-uppercase">Est. Weight (Kg)</label>
+                                class="form-label fw-bold small text-muted text-uppercase mb-1">Est. Weight (Kg)</label>
                             {{ form.estimated_weight }}
                             {% if form.estimated_weight.errors %}
                             <div class="text-danger small mt-1">{{ form.estimated_weight.errors.0 }}</div>
@@ -88,7 +87,7 @@
                         </div>
                         <div class="col-md-6">
                             <label for="{{ form.scheduled_date.id_for_label }}"
-                                class="form-label fw-bold small text-muted text-uppercase">Preferred Time</label>
+                                class="form-label fw-bold small text-muted text-uppercase mb-1">Preferred Time</label>
                             {{ form.scheduled_date }}
                             {% if form.scheduled_date.errors %}
                             <div class="text-danger small mt-1">{{ form.scheduled_date.errors.0 }}</div>
@@ -150,6 +149,30 @@
 
     body.dark-mode .text-dark {
         color: #f8f9fa !important;
+    }
+
+    /* Location Details row alignment */
+    .loc-details-row .input-group {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .loc-details-row .input-group input,
+    .loc-details-row .input-group select,
+    .loc-details-row .input-group textarea {
+        flex: 1 1 auto;
+        width: 1%;
+        min-width: 0;
+        border-radius: 0 0.375rem 0.375rem 0 !important;
+    }
+
+    .loc-details-row .input-group .input-group-text {
+        border-radius: 0.375rem 0 0 0.375rem !important;
+    }
+
+    /* For input groups without a prepend icon (longitude) */
+    .loc-details-row .input-group:not(:has(.input-group-text)) input {
+        border-radius: 0.375rem !important;
     }
 </style>
 
