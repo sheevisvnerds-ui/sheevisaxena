@@ -132,8 +132,9 @@
 
     .timeline-item {
         position: relative;
-        padding-left: 30px;
-        padding-bottom: 30px;
+        padding-left: 40px;
+        /* Increased padding for better spacing */
+        padding-bottom: 40px;
     }
 
     .timeline-item:last-child {
@@ -144,41 +145,54 @@
     .timeline-item::before {
         content: '';
         position: absolute;
-        left: 7px;
-        top: 5px;
-        bottom: -5px;
-        width: 2px;
-        background-color: #e9ecef;
+        left: 9px;
+        /* Centered with marker */
+        top: 8px;
+        bottom: -8px;
+        /* Connect to next item */
+        width: 3px;
+        /* Thicker line */
+        background-color: #2e7d32;
+        /* Green line for active items by default in this design */
     }
 
     .timeline-item:last-child::before {
         display: none;
     }
 
-    /* Active State (Green) */
-    .timeline-item.active::before {
-        background-color: #2e7d32;
-    }
-
+    /* Marker (Dot) */
     .timeline-marker {
         position: absolute;
         left: 0;
         top: 5px;
-        width: 16px;
-        height: 16px;
+        width: 20px;
+        /* Larger dot */
+        height: 20px;
         border-radius: 50%;
-        background-color: #e9ecef;
+        background-color: #2e7d32;
+        /* Solid Green */
+        border: 3px solid #fff;
+        /* White border for 'cutout' effect if on colored bg, or just to sizing */
+        box-shadow: 0 0 0 1px #2e7d32;
+        /* Outer green ring */
         z-index: 1;
     }
 
-    .timeline-item.active .timeline-marker {
-        background-color: #2e7d32;
-        box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+    /* Content styling */
+    .timeline-content h6 {
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
     }
 
+    .timeline-content p {
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+
+    /* Cancelled State */
     .timeline-item .timeline-marker.bg-danger {
         background-color: #dc3545;
-        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+        box-shadow: 0 0 0 1px #dc3545;
     }
 </style>
 
@@ -206,9 +220,35 @@
                         </div>
                     </div>
 
-                    <!-- Dynamic Updates -->
+                    <!-- Step 2: Agent Assigned (Check if agent exists OR status is beyond pending) -->
+                    {% if pickup.agent or pickup.status == 'ASSIGNED' or pickup.status == 'COLLECTED' %}
+                    <div class="timeline-item active">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h6 class="fw-bold text-dark mb-1">Agent Assigned</h6>
+                            {% if pickup.agent %}
+                            <p class="text-muted small mb-0">Agent {{ pickup.agent.name|default:pickup.agent.username }}
+                                has accepted the pickup.</p>
+                            {% else %}
+                            <p class="text-muted small mb-0">A pickup agent has been assigned.</p>
+                            {% endif %}
+
+                            <!-- Attempt to find the specific assignment timestamp -->
+                            {% with assignment_update=pickup.status_updates.all|dictsort:"timestamp"|first %}
+                            <!-- In a real scenario we'd filter for 'Agent Assigned' status, but for now we fallback to created_at if not found or just hide time -->
+                            <small class="text-secondary">
+                                {% if pickup.status == 'ASSIGNED' %}
+                                {{ pickup.updated_at|date:"h:i A, d F, Y" }}
+                                {% endif %}
+                            </small>
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Dynamic Updates (exclude 'Agent Assigned' if we just hardcoded it above to avoid dupes) -->
                     {% for update in pickup.status_updates.all|dictsort:"timestamp" %}
-                    {% if update.status != "Order Placed" %}
+                    {% if update.status != "Order Placed" and update.status != "Agent Assigned" %}
                     <div class="timeline-item active">
                         <div class="timeline-marker"></div>
                         <div class="timeline-content">
@@ -221,7 +261,7 @@
                     {% endfor %}
 
                     <!-- Final Step: Collected/Cancelled -->
-                    {% if pickup.status == 'COLLECTED' or pickup.actual_weight %}
+                    {% if pickup.status == 'COLLECTED' %}
                     <div class="timeline-item active">
                         <div class="timeline-marker"></div>
                         <div class="timeline-content">

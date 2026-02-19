@@ -99,6 +99,15 @@ class AgentAcceptPickupView(LoginRequiredMixin, View):
             pickup.agent = request.user
             pickup.status = PickupRequest.Status.ASSIGNED
             pickup.save()
+            
+            # Log the assignment
+            PickupStatusUpdate.objects.create(
+                pickup=pickup,
+                status="Agent Assigned",
+                location="System",
+                description=f"Agent {request.user.name or request.user.username} has accepted the pickup."
+            )
+            
             messages.success(request, f"Pickup #{pickup.id} accepted successfully!")
         else:
             messages.error(request, "This pickup is no longer available.")
